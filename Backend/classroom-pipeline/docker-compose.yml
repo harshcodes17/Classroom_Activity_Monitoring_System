@@ -56,31 +56,21 @@ services:
         condition: service_healthy
     ports:
       - "8000:8000"
+  # no dataset mount needed for FastAPI now
 
   kafka_producer:
     build: ./kafka_producer
     environment:
       KAFKA_BROKERS: kafka:9092
       KAFKA_TOPIC: student-activity
+      FINAL_CSV_PATH: /data/final.csv
+      SEND_DELAY: 1.0
     depends_on:
       kafka:
         condition: service_healthy
+    volumes:
+      - ../../Dataset:/data:ro
 
-  kafka_consumer:
-    build: ./kafka_consumer
-    environment:
-      KAFKA_BROKERS: kafka:9092
-      KAFKA_TOPIC: student-activity
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: classroom
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-    depends_on:
-      kafka:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
 
   adminer:
     image: adminer

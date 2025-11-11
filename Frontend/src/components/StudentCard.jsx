@@ -3,8 +3,9 @@ import React from 'react';
 function statusColor(status) {
   if (!status) return '#999';
   const s = status.toLowerCase();
-  if (s.includes('attent')) return '#16a34a'; // green
-  if (s.includes('distract') || s.includes('phone')) return '#dc2626'; // red
+  if (s === 'attentive') return '#16a34a'; // green
+  if (s === 'non_attentive') return '#dc2626'; // red for explicitly non attentive
+  if (s.includes('distract') || s.includes('phone')) return '#dc2626'; // legacy patterns
   if (s.includes('sleep')) return '#7c3aed'; // purple
   return '#f59e0b'; // amber unknown/neutral
 }

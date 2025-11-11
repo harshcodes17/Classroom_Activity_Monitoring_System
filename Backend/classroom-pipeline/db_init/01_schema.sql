@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS activity (
     id SERIAL PRIMARY KEY,
     student_id TEXT NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('attentive','sleeping','phone')),
+    status TEXT NOT NULL CHECK (status IN ('attentive','non_attentive','sleeping','phone','unknown')),
     confidence REAL,
     ts TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

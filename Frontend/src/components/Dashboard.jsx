@@ -4,6 +4,7 @@ import LiveAlerts from './LiveAlerts';
 import StudentList from './StudentList';
 import History from './History';
 import Navbar from './Navbar';
+// Removed attendance REST view; live feed via WebSocket only
 
 export default function Dashboard({ token, onLogout, user }) {
   const [students, setStudents] = useState({});
@@ -11,9 +12,7 @@ export default function Dashboard({ token, onLogout, user }) {
   const [feed, setFeed] = useState([]);
   const wsRef = useRef(null);
 
-  // 🧠 Dummy Data Configuration
-  const dummyStudents = ["S101", "S102", "S103", "S104", "S105"];
-  const statuses = ["Attentive", "Using Phone", "Sleeping", "Distracted"];
+  // Attendance REST removed; no periodic CSV fetch
 
   // Fetch roster (if API works)
   useEffect(() => {
@@ -39,59 +38,29 @@ export default function Dashboard({ token, onLogout, user }) {
       });
   }, []);
 
-  // ✅ Main Effect: Always start dummy feed + try WebSocket if available
+  // ✅ Main Effect: Only use real WebSocket events (no dummy)
   useEffect(() => {
     console.log("🔄 Starting dashboard…");
-
-    // Always start dummy feed first
-    const dummyTimer = startDummyFeed();
 
     // Try WebSocket connection
     let ws;
     try {
       ws = createWebSocket({
         token,
-        onOpen: () => {
-          console.log("✅ WS Connected — stopping dummy feed");
-          clearInterval(dummyTimer);
-        },
-        onMessage: (data) => {
-          clearInterval(dummyTimer); // stop dummy once real data comes
-          handleEvent(data);
-        },
+        onOpen: () => console.log("✅ WS Connected"),
+        onMessage: (data) => handleEvent(data),
         onClose: () => console.log("🔴 WS Closed"),
         onError: (e) => console.log("⚠️ WS Error", e),
       });
       wsRef.current = ws;
     } catch (err) {
-      console.warn("Backend WS failed — staying in dummy mode");
+      console.warn("Backend WS failed — waiting for real events only");
     }
 
     return () => {
       if (ws) ws.close();
-      clearInterval(dummyTimer);
     };
   }, [token]);
-
-  // 🟢 Dummy feed generator
-  function startDummyFeed() {
-    console.log("⚙️ Dummy mode active...");
-    return setInterval(() => {
-      const randomStudent =
-        dummyStudents[Math.floor(Math.random() * dummyStudents.length)];
-      const randomStatus =
-        statuses[Math.floor(Math.random() * statuses.length)];
-      const confidence = (Math.random() * 0.2 + 0.8).toFixed(2);
-      const timestamp = new Date().toISOString();
-
-      handleEvent({
-        student_id: randomStudent,
-        status: randomStatus,
-        confidence: parseFloat(confidence),
-        timestamp,
-      });
-    }, 3000); // every 3 seconds
-  }
 
   // 🟢 Handle event (either from WS or dummy)
   function handleEvent(evt) {
@@ -110,7 +79,7 @@ export default function Dashboard({ token, onLogout, user }) {
       return next;
     });
 
-    if (evt.status && /(distract|sleep|phone)/i.test(evt.status)) {
+  if (evt.status && (evt.status === 'non_attentive' || /(distract|sleep|phone)/i.test(evt.status))) {
       const alert = {
         id: Math.random().toString(36).slice(2, 9),
         student_id: id,
@@ -125,6 +94,8 @@ export default function Dashboard({ token, onLogout, user }) {
   function dismissAlert(alertId) {
     setAlerts(prev => prev.filter(a => a.id !== alertId));
   }
+
+  // No dummy data configuration — only real events
 
   return (
     <div className="app-root">
@@ -147,8 +118,10 @@ export default function Dashboard({ token, onLogout, user }) {
                   Waiting for events from AI inference server...
                 </div>
               )}
-              {feed.map((e, idx) => (
-                <div key={idx} className="feed-item">
+              {feed.map((e, idx) => {
+                const cls = `feed-item ${e.status === 'attentive' ? 'attentive' : (e.status === 'non_attentive' ? 'non_attentive' : '')}`;
+                return (
+                <div key={idx} className={cls}>
                   <div className="feed-time">
                     {new Date(e.timestamp).toLocaleTimeString()}
                   </div>
@@ -157,7 +130,7 @@ export default function Dashboard({ token, onLogout, user }) {
                     {e.confidence ? `(${Math.round(e.confidence * 100)}%)` : ""}
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         </main>
@@ -172,6 +145,7 @@ export default function Dashboard({ token, onLogout, user }) {
             <h3>Session History</h3>
             <History feed={feed} />
           </div>
+          {/* Attendance table removed */}
         </aside>
       </div>
     </div>

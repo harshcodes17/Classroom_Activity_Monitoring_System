@@ -18,6 +18,24 @@ A minimal, Dockerized starter to give GitHub Copilot **project context** for the
    ```
    GET http://localhost:8000/recent
    ```
+6) Attendance predictions from CSV (cached for 15s):
+    ```
+    GET http://localhost:8000/attendance?status=Attentive&limit=50&offset=0&q=PartA_00
+    ```
+    Response shape:
+    ```json
+    {
+       "total": 500,
+       "items": [
+            {
+               "image": "PartA_00047_jpg.rf....jpg",
+               "attentive_prob": 0.42,
+               "non_attentive_prob": 0.57,
+               "status": "Attentive"
+            }
+       ]
+    }
+    ```
 5) WebSocket alerts:
    ```
    ws://localhost:8000/ws/alerts
@@ -45,6 +63,8 @@ cams-starter/
 ## Environment
 - Edit `.env` to change Kafka/Postgres settings.
 - Default topic: `student-activity`.
+- Set `CSV_PATH` (mounted via docker-compose under `/data`) to enable `/attendance` endpoint.
+- Optional: `CSV_CACHE_TTL` (seconds, default 15) to adjust caching of CSV reads.
 
 ## Integrating the Real Model
 Replace the **producer** with your inference service. Send events to Kafka in the same JSON format:
