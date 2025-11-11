@@ -125,3 +125,26 @@ Below are repository images embedded so viewers see a visual overview immediatel
 
 Empowering educators with real-time, privacy-preserving classroom insights — AI, streaming, and analytics working together for better learning outcomes. 🍎🍪
 
+---
+
+### How to run the backend and frontend
+
+#### Backend
+1. Navigate to the `Backend/classroom-pipeline/` directory.
+2. Run the following command to build and start the backend services:
+    ```bash
+    docker compose up --build
+    ```
+3. The FastAPI backend will be available at `http://localhost:8000`.
+
+#### Frontend
+1. Navigate to the `Frontend/` directory.
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
+3. Start the development server:
+    ```bash
+    npm start
+    ```
+4. The React frontend will be available at `http://localhost:3000`.
