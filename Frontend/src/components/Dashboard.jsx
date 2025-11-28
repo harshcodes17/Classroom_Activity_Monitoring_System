@@ -4,12 +4,14 @@ import LiveAlerts from './LiveAlerts';
 import StudentList from './StudentList';
 import History from './History';
 import Navbar from './Navbar';
+import ClassSummary from './ClassSummary';
 // Removed attendance REST view; live feed via WebSocket only
 
 export default function Dashboard({ token, onLogout, user }) {
   const [students, setStudents] = useState({});
   const [alerts, setAlerts] = useState([]);
   const [feed, setFeed] = useState([]);
+  const [showSummary, setShowSummary] = useState(false);
   const wsRef = useRef(null);
 
   // Attendance REST removed; no periodic CSV fetch
@@ -99,8 +101,11 @@ export default function Dashboard({ token, onLogout, user }) {
 
   return (
     <div className="app-root">
-      <Navbar user={user} onLogout={onLogout} />
+      <Navbar user={user} onLogout={onLogout} onShowSummary={() => setShowSummary(true)} />
 
+      {showSummary ? (
+        <ClassSummary students={students} feed={feed} onBack={() => setShowSummary(false)} />
+      ) : (
       <div className="container">
         {/* LEFT PANEL */}
         <aside className="left-panel">
@@ -147,7 +152,8 @@ export default function Dashboard({ token, onLogout, user }) {
           </div>
           {/* Attendance table removed */}
         </aside>
-      </div>
+  </div>
+  )}
     </div>
   );
 }

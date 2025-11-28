@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Navbar({ user, onLogout }) {
+export default function Navbar({ user, onLogout, onShowSummary }) {
   return (
     <div className="navbar">
       <div className="brand-left">
@@ -9,6 +9,7 @@ export default function Navbar({ user, onLogout }) {
       </div>
       <div className="nav-right">
         <div className="user">Signed in as <strong>{user?.username || 'Faculty'}</strong></div>
+  <button className="btn" onClick={onShowSummary} style={{ marginRight: '8px' }}>Class Summary</button>
         <button className="btn ghost" onClick={onLogout}>Sign out</button>
       </div>
     </div>
